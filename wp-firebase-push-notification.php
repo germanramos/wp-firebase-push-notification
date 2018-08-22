@@ -1,9 +1,9 @@
 <?php
 /*
 Plugin Name:Wordpress Firebase Push Notification
-Description:Notify your users of new posts with Firebase cloud messaging (FCM)
-Version:1
-Author:sony7596, miraclewebssoft, reachbaljit
+Description:Wordpress Firebase Push Notification
+Version:3.4
+Author:sony7596, miraclewebssoft, reach.baljit, germanramos
 Author URI:http://www.miraclewebsoft.com
 License:GPL2
 License URI:https://www.gnu.org/licenses/gpl-2.0.html
@@ -32,7 +32,7 @@ Class Firebase_Push_Notification
         add_action("admin_init", array($this, $this->pre_name . '_backend_plugin_js_scripts_filter_table'));
         add_action("admin_init", array($this, $this->pre_name . '_backend_plugin_css_scripts_filter_table'));
         add_action('admin_init', array($this, $this->pre_name . '_settings'));
-        add_action('publish_post', array($this, $this->pre_name . '_on_post_publish'), 10, 2);
+        add_action('save_post', array($this, $this->pre_name . '_on_post_save'),10, 3);
         //add_action('init', array($this, $this->pre_name . '_custom_post_type'));
 
     }
@@ -79,8 +79,6 @@ Class Firebase_Push_Notification
     function fcm_settings()
     {    //register our settings
         register_setting('fcm_group', 'stf_fcm_api');
-        register_setting('fcm_group', 'fcm_option');
-        register_setting('fcm_group', 'fcm_topic');
         register_setting('fcm_group', 'fcm_disable');
         register_setting('fcm_group', 'fcm_update_disable');
         register_setting('fcm_group', 'fcm_page_disable');
@@ -102,28 +100,52 @@ Class Firebase_Push_Notification
         );
     }
 
-    // https://wordpress.stackexchange.com/questions/247447/how-can-i-tell-if-a-post-has-been-published-at-least-once
-    function fcm_on_post_publish($post_id, $post) {
-        // $from = get_bloginfo('name');
-        // $content = 'There are new post notification from '.$from;
+    function fcm_on_post_save($post_id, $post, $update) {
+        $from = get_bloginfo('name');
+        //$content = 'There are new post notification from '.$from;
         $content = $post->post_title;
+        $post_id = $post->ID;
+        $category = get_the_category($post->ID)[0]->cat_name;
 
-        if (get_option('stf_fcm_api') && get_option('fcm_topic')) {
-            $published_at_least_once = get_post_meta( $post_id, 'is_published', true );
+        if(get_option('stf_fcm_api')) {
+            //new post/page
+            if (isset($post->post_status)) {
 
-            if (!$published_at_least_once && get_option('fcm_disable') != 1) {
-                $published_at_least_once = true;
-                $this->fcm_notification($content, (string) $post_id);
+                if (!$update) {
+                    if ($post->post_status == 'publish') {
+
+                        if ($post->post_type == 'post' && get_option('fcm_disable') != 1) {
+                            $this->fcm_notification($content, $post_id, $category);
+
+                        } elseif ($post->post_type == 'page' && get_option('fcm_page_disable') != 1) {
+                            $this->fcm_notification($content, $post_id, $category);
+                        }
+
+
+                    }
+
+                } else {
+                    //updated post/page
+                    if ($post->post_status == 'publish') {
+                        if ($post->post_type == 'post' && get_option('fcm_update_disable') != 1) {
+                            $this->fcm_notification($content, $post_id, $category);
+                        } elseif ($post->post_type == 'page' && get_option('fcm_update_page_disable') != 1) {
+                            $this->fcm_notification($content, $post_id, $category);
+                        }
+
+                    }
+                }
             }
-
-            update_post_meta( $post_id, 'is_published', $published_at_least_once );
         }
+
     }
 
     function fcm_test_notification(){
         $content = 'Test Notification from FCM Plugin';
+        $post_id = '1234';
+        $category = "test";
 
-        $result = $this->fcm_notification($content, '0');
+        $result = $this->fcm_notification($content, $post_id, $category);
 
         echo '<div class="row">';
         echo '<div><h2>Debug Information</h2>';
@@ -138,30 +160,33 @@ Class Firebase_Push_Notification
         echo '</div>';
     }
 
-    function fcm_notification($content, $post_id){
-        $topic =  "'".get_option('fcm_topic')."' in topics";
+    function fcm_notification($content, $post_id, $category){
+        $category = str_replace(" ", "-", $category);
+        //$topic =  "'".get_option('fcm_topic')."' in topics";
+        $topic =  "'".$category."' in topics";
         $apiKey = get_option('stf_fcm_api');
         $url = 'https://fcm.googleapis.com/fcm/send';
         $headers = array(
             'Authorization: key=' . $apiKey,
             'Content-Type: application/json'
         );
-        $notification_data = array(
-            // when application open then post field 'data' parameter work so 'message' and 'body' key should have same text or value
-            'message'           => $content,
-            'post_id'           => $post_id
+        $notification_data = array(    //// when application open then post field 'data' parameter work so 'message' and 'body' key should have same text or value
+            'message'        => $content,
+            'post_id'        => $post_id,
+            'category'       => $category
         );
 
-        $notification = array(
-            // when application close then post field 'notification' parameter work
-            'body'  => $content,
-            'sound' => 'default'
+        $notification = array(       //// when application close then post field 'notification' parameter work
+            'body'       => $content,
+            'post_id'    => $post_id,
+            'category'   => $category,
+            'sound'      => 'default'
         );
 
         $post = array(
             'condition'         => $topic,
             'notification'      => $notification,
-            "content_available" => false,
+            "content_available" => true,
             'priority'          => 'high',
             'data'              => $notification_data
         );

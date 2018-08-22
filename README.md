@@ -8,7 +8,7 @@
 ## Requires
 
 Wordpress 3.6+
-  
+
 
 ## Installation
 
@@ -23,16 +23,19 @@ Wordpress 3.6+
 
 ## How to use Plugin
 
-1. After install goto Firebase Push Notification under Settings in wordpress admin menu
-2. Enter Google firebase API key to field given.
-3. Input topic name in given field. Your mobile apps must subscribe to the same FCM topic.
-
+1. After install goto Firebase Push Notification under Settings in Wordpress admin menu
+2. Enter Google firebase api key to field given.
+3. The topic will be the first category name of the post/page
+4. If your post/page does not have category, the topic will be "sin-categoria" if you have WP in Spanish
+5. The test message will use topic "test"
+6. Disable notification for post or page if needed.
 
 ## Authors
 
 * [sony7596](https://profiles.wordpress.org/sony7596)
 * [miraclewebssoft](https://profiles.wordpress.org/miraclewebssoft)
 * [reachbaljit](https://profiles.wordpress.org/reachbaljit)
+* [germanramos](https://github.com/germanramos/wp-firebase-push-notification)
 
 ## License
 
