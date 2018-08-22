@@ -4,7 +4,7 @@ Tags: Firebase cloud messsaging, FCM, Firebase cloud messsaging for Adroid, Fire
 Donate link: https://www.paypal.me/KaramSingh
 Requires at least:3.6
 Tested up to:4.9
-Stable tag:3.4
+Stable tag:3.5
 License:GPL2
 License URI:https://www.gnu.org/licenses/gpl-2.0.html
 

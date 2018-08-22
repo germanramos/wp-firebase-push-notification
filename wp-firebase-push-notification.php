@@ -2,7 +2,7 @@
 /*
 Plugin Name:Wordpress Firebase Push Notification
 Description:Wordpress Firebase Push Notification
-Version:3.4
+Version:3.5
 Author:sony7596, miraclewebssoft, reach.baljit, germanramos
 Author URI:http://www.miraclewebsoft.com
 License:GPL2
@@ -101,12 +101,9 @@ Class Firebase_Push_Notification
     }
 
     function fcm_on_post_save($post_id, $post, $update) {
-        $from = get_bloginfo('name');
-        //$content = 'There are new post notification from '.$from;
-        $content = $post->post_title;
-        $post_id = $post->ID;
-        $category = get_the_category($post->ID)[0]->cat_name;
-
+        $title = $post->post_title;
+        $content = substr(strip_tags($post->post_content), 0, 50) . "...";
+        $topic = get_the_category($post_id)[0]->cat_name;
         if(get_option('stf_fcm_api')) {
             //new post/page
             if (isset($post->post_status)) {
@@ -115,10 +112,10 @@ Class Firebase_Push_Notification
                     if ($post->post_status == 'publish') {
 
                         if ($post->post_type == 'post' && get_option('fcm_disable') != 1) {
-                            $this->fcm_notification($content, $post_id, $category);
+                            $this->fcm_notification($title, $content, $topic);
 
                         } elseif ($post->post_type == 'page' && get_option('fcm_page_disable') != 1) {
-                            $this->fcm_notification($content, $post_id, $category);
+                            $this->fcm_notification($title, $content, $topic);
                         }
 
 
@@ -128,9 +125,9 @@ Class Firebase_Push_Notification
                     //updated post/page
                     if ($post->post_status == 'publish') {
                         if ($post->post_type == 'post' && get_option('fcm_update_disable') != 1) {
-                            $this->fcm_notification($content, $post_id, $category);
+                            $this->fcm_notification($title, $content, $topic);
                         } elseif ($post->post_type == 'page' && get_option('fcm_update_page_disable') != 1) {
-                            $this->fcm_notification($content, $post_id, $category);
+                            $this->fcm_notification($title, $content, $topic);
                         }
 
                     }
@@ -141,11 +138,11 @@ Class Firebase_Push_Notification
     }
 
     function fcm_test_notification(){
-        $content = 'Test Notification from FCM Plugin';
-        $post_id = '1234';
-        $category = "test";
+        $title = 'Test title from FCM Plugin';
+        $content = 'Test content from FCM Plugin';
+        $topic = "test";
 
-        $result = $this->fcm_notification($content, $post_id, $category);
+        $result = $this->fcm_notification($title, $content, $topic);
 
         echo '<div class="row">';
         echo '<div><h2>Debug Information</h2>';
@@ -160,10 +157,8 @@ Class Firebase_Push_Notification
         echo '</div>';
     }
 
-    function fcm_notification($content, $post_id, $category){
-        $category = str_replace(" ", "-", $category);
-        //$topic =  "'".get_option('fcm_topic')."' in topics";
-        $topic =  "'".$category."' in topics";
+    function fcm_notification($title, $content, $topic){
+        $condition =  "'".$topic."' in topics";
         $apiKey = get_option('stf_fcm_api');
         $url = 'https://fcm.googleapis.com/fcm/send';
         $headers = array(
@@ -172,19 +167,20 @@ Class Firebase_Push_Notification
         );
         $notification_data = array(    //// when application open then post field 'data' parameter work so 'message' and 'body' key should have same text or value
             'message'        => $content,
-            'post_id'        => $post_id,
+            //'post'        => $post,
             'category'       => $category
         );
 
         $notification = array(       //// when application close then post field 'notification' parameter work
+            'title'       => $title,
             'body'       => $content,
-            'post_id'    => $post_id,
+            //'post'    => $post,
             'category'   => $category,
             'sound'      => 'default'
         );
 
         $post = array(
-            'condition'         => $topic,
+            'condition'         => $condition,
             'notification'      => $notification,
             "content_available" => true,
             'priority'          => 'high',
