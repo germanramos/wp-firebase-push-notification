@@ -107,10 +107,10 @@ Class Firebase_Push_Notification
         $extra = array(
             'title'       => array('rendered' => $post->post_title),
             'content'     => array('rendered' => $post->post_content),
-            'date'        => $post->post_date,
+            'date'        => str_replace(' ','T',$post->post_date),
             'author'      => $post->post_author,
             'id'          => $post_id,
-            'categories'  => wp_get_post_categories($post_id);
+            'categories'  => wp_get_post_categories($post_id)
         );
         if(get_option('stf_fcm_api')) {
             //new post/page
@@ -154,7 +154,8 @@ Class Firebase_Push_Notification
             'content'     => array('rendered' => 'Test content from FCM Plugin'),
             'date'        => "2018-08-20T15:01:44",
             'author'      => 1,
-            'id'          => 1000
+            'id'          => 1000,
+            'categories'  => [1,2]
         );
 
         $result = $this->fcm_notification($title, $content, $topic, $extra);
@@ -181,16 +182,16 @@ Class Firebase_Push_Notification
             'Content-Type: application/json'
         );
         $notification_data = array(    //// when application open then post field 'data' parameter work so 'message' and 'body' key should have same text or value
-            'message'        => $content,
+            //'message'        => $content,
             'extra'          => $extra,
-            'category'       => $category
+            //'category'       => $category
         );
 
         $notification = array(       //// when application close then post field 'notification' parameter work
             'title'      => $title,
             'body'       => $content,
-            'extra'      => $extra,
-            'category'   => $category,
+            //'extra'      => $extra,
+            //'category'   => $category,
             'sound'      => 'default'
         );
 
