@@ -100,10 +100,16 @@ Class Firebase_Push_Notification
         );
     }
 
+    function getNamesOfCategory($category)
+    {
+      return($category->cat_name);
+    }
+
     function fcm_on_post_save($post_id, $post, $update) {
         $title = $post->post_title;
         $content = substr(strip_tags($post->post_content), 0, 50) . "...";
-        $topic = get_the_category($post_id)[0]->cat_name;
+        function getNamesOfCategory($category) { return($category->cat_name); }
+        $topics = array_map("getNamesOfCategory", get_the_category($post_id));
         $extra = array(
             'title'       => array('rendered' => $post->post_title),
             'content'     => array('rendered' => $post->post_content),
@@ -120,10 +126,10 @@ Class Firebase_Push_Notification
                     if ($post->post_status == 'publish') {
 
                         if ($post->post_type == 'post' && get_option('fcm_disable') != 1) {
-                            $this->fcm_notification($title, $content, $topic, $extra);
+                            $this->fcm_notification($title, $content, $topics, $extra);
 
                         } elseif ($post->post_type == 'page' && get_option('fcm_page_disable') != 1) {
-                            $this->fcm_notification($title, $content, $topic, $extra);
+                            $this->fcm_notification($title, $content, $topics, $extra);
                         }
 
 
@@ -133,9 +139,9 @@ Class Firebase_Push_Notification
                     //updated post/page
                     if ($post->post_status == 'publish') {
                         if ($post->post_type == 'post' && get_option('fcm_update_disable') != 1) {
-                            $this->fcm_notification($title, $content, $topic, $extra);
+                            $this->fcm_notification($title, $content, $topics, $extra);
                         } elseif ($post->post_type == 'page' && get_option('fcm_update_page_disable') != 1) {
-                            $this->fcm_notification($title, $content, $topic, $extra);
+                            $this->fcm_notification($title, $content, $topics, $extra);
                         }
 
                     }
@@ -148,7 +154,7 @@ Class Firebase_Push_Notification
     function fcm_test_notification(){
         $title = 'Test title from FCM Plugin';
         $content = 'Test content from FCM Plugin';
-        $topic = "test";
+        $topics = array("test");
         $extra = array(
             'title'       => array('rendered' => 'Test title from FCM Plugin'),
             'content'     => array('rendered' => 'Test content from FCM Plugin'),
@@ -158,7 +164,7 @@ Class Firebase_Push_Notification
             'categories'  => [1,2]
         );
 
-        $result = $this->fcm_notification($title, $content, $topic, $extra);
+        $result = $this->fcm_notification($title, $content, $topics, $extra);
 
         echo '<div class="row">';
         echo '<div><h2>Debug Information</h2>';
@@ -173,8 +179,10 @@ Class Firebase_Push_Notification
         echo '</div>';
     }
 
-    function fcm_notification($title, $content, $topic, $extra){
-        $condition =  "'".$topic."' in topics";
+    function fcm_notification($title, $content, $topics, $extra){
+        $condition =  "'".$topics[0]."' in topics";
+        if (count($topics) > 1) $condition = $condition . " || '".$topics[1]."' in topics";
+        if (count($topics) > 2) $condition = $condition . " || '".$topics[2]."' in topics";
         $apiKey = get_option('stf_fcm_api');
         $url = 'https://fcm.googleapis.com/fcm/send';
         $headers = array(
