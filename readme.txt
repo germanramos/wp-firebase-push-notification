@@ -27,7 +27,7 @@ Firebase cloud messsaging(FCM) for Android and IOS on post save, post update, pa
 
 * After install goto Firebase Push Notification under Settings in Wordpress admin menu
 * Enter Google firebase api key to field given.
-* The topic will be the first category name of the post/page
+* The firebase topic will be the slug of the first 3 categories of the post/page
 * If your post/page does not have category, the topic will be "sin-categoria" if you have WP in Spanish
 * The test message will use topic "test"
 * Disable notification for post or page if needed.

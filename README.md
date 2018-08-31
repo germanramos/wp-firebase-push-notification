@@ -25,7 +25,7 @@ Wordpress 3.6+
 
 1. After install goto Firebase Push Notification under Settings in Wordpress admin menu
 2. Enter Google firebase api key to field given.
-3. The topic will be the first 3 categories names of the post/page
+3. The firebase topic will be the slug of the first 3 categories of the post/page
 4. If your post/page does not have category, the topic will be "sin-categoria" if you have WP in Spanish
 5. The test message will use topic "test"
 6. Disable notification for post or page if needed.
