@@ -2,8 +2,7 @@
 
 ## Description
 
- Notify your users of new posts with Firebase cloud messaging (FCM) for Android and iOS. Sends a FCM/push notification when a post is published for the first time.
-
+ Notify your users of new posts with Firebase cloud messaging (FCM) for Android and iOS. Sends a FCM/push notification when a post is published for the first time or updated.
 
 ## Requires
 
@@ -25,10 +24,9 @@ Wordpress 3.6+
 
 1. After install goto Firebase Push Notification under Settings in Wordpress admin menu
 2. Enter Google firebase api key to field given.
-3. The firebase topic will be the slug of the first 3 categories of the post/page
-4. If your post/page does not have category, the topic will be "sin-categoria" if you have WP in Spanish
+3. The firebase topic will be the slug of the first 3 categories of the post
+4. If your post does not have category, the topic will be "sin-categoria" if you have WP in Spanish
 5. The test message will use topic "test"
-6. Disable notification for post or page if needed.
 
 ## Authors
 

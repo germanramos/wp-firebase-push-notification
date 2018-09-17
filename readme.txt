@@ -8,10 +8,9 @@ Stable tag:3.5
 License:GPL2
 License URI:https://www.gnu.org/licenses/gpl-2.0.html
 
-Firebase cloud messsaging(FCM) for Android and IOS on post save, post update, page save and page update with Device Topic.
-
+Notify your users of new posts with Firebase cloud messaging (FCM) for Android and iOS. Sends a FCM/push notification when a post is published for the first time or updated.
 == Description ==
-Firebase cloud messsaging(FCM) for Android and IOS on post save, post update, page save and page update. You google FCM API key and Device Topic.
+Notify your users of new posts with Firebase cloud messaging (FCM) for Android and iOS. Sends a FCM/push notification when a post is published for the first time or updated.
 
 
 **Plugin features:-**
@@ -27,10 +26,9 @@ Firebase cloud messsaging(FCM) for Android and IOS on post save, post update, pa
 
 * After install goto Firebase Push Notification under Settings in Wordpress admin menu
 * Enter Google firebase api key to field given.
-* The firebase topic will be the slug of the first 3 categories of the post/page
-* If your post/page does not have category, the topic will be "sin-categoria" if you have WP in Spanish
+* The firebase topic will be the slug of the first 3 categories of the post
+* If your post does not have category, the topic will be "sin-categoria" if you have WP in Spanish
 * The test message will use topic "test"
-* Disable notification for post or page if needed.
 
 **Need More features contact us:-**
 

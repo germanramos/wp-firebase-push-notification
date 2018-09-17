@@ -32,9 +32,7 @@ Class Firebase_Push_Notification
         add_action("admin_init", array($this, $this->pre_name . '_backend_plugin_js_scripts_filter_table'));
         add_action("admin_init", array($this, $this->pre_name . '_backend_plugin_css_scripts_filter_table'));
         add_action('admin_init', array($this, $this->pre_name . '_settings'));
-        add_action('save_post', array($this, $this->pre_name . '_on_post_save'),10, 3);
-        //add_action('init', array($this, $this->pre_name . '_custom_post_type'));
-
+        add_action('publish_post', array($this, $this->pre_name . '_on_post_publish'), 10, 2 );
     }
 
     public function fcm_setup_admin_menu()
@@ -79,11 +77,6 @@ Class Firebase_Push_Notification
     function fcm_settings()
     {    //register our settings
         register_setting('fcm_group', 'stf_fcm_api');
-        register_setting('fcm_group', 'fcm_disable');
-        register_setting('fcm_group', 'fcm_update_disable');
-        register_setting('fcm_group', 'fcm_page_disable');
-        register_setting('fcm_group', 'fcm_update_page_disable');
-
     }
 
     function fcm_custom_post_type()
@@ -105,8 +98,8 @@ Class Firebase_Push_Notification
       return($category->cat_name);
     }
 
-    function fcm_on_post_save($post_id, $post, $update) {
-        //error_log( "Firebase fcm_on_post_save: post_id {$post_id} update {$update}" );
+    function fcm_on_post_publish($post_id, $post) {
+        //error_log( "Firebase fcm_on_post_save: post_id {$post_id}" );
         $title = $post->post_title;
         $content = substr(strip_tags($post->post_content), 0, 50) . "...";
         if ( ! function_exists('getSlugOfCategory')) {
@@ -122,36 +115,8 @@ Class Firebase_Push_Notification
             'categories'  => wp_get_post_categories($post_id)
         );
         if(get_option('stf_fcm_api')) {
-            //new post/page
-            if (isset($post->post_status)) {
-
-                if (!$update) {
-                    if ($post->post_status == 'publish') {
-
-                        if ($post->post_type == 'post' && get_option('fcm_disable') != 1) {
-                            $this->fcm_notification($title, $content, $topics, $extra);
-
-                        } elseif ($post->post_type == 'page' && get_option('fcm_page_disable') != 1) {
-                            $this->fcm_notification($title, $content, $topics, $extra);
-                        }
-
-
-                    }
-
-                } else {
-                    //updated post/page
-                    if ($post->post_status == 'publish') {
-                        if ($post->post_type == 'post' && get_option('fcm_update_disable') != 1) {
-                            $this->fcm_notification($title, $content, $topics, $extra);
-                        } elseif ($post->post_type == 'page' && get_option('fcm_update_page_disable') != 1) {
-                            $this->fcm_notification($title, $content, $topics, $extra);
-                        }
-
-                    }
-                }
-            }
+            $this->fcm_notification($title, $content, $topics, $extra);
         }
-
     }
 
     function fcm_test_notification(){
