@@ -33,6 +33,7 @@ Class Firebase_Push_Notification
         add_action("admin_init", array($this, $this->pre_name . '_backend_plugin_css_scripts_filter_table'));
         add_action('admin_init', array($this, $this->pre_name . '_settings'));
         add_action('publish_post', array($this, $this->pre_name . '_on_post_publish'), 10, 2 );
+        add_action('json_insert_post', array($this, $this->pre_name . '_on_post_publish'), 10, 3);
     }
 
     public function fcm_setup_admin_menu()
@@ -98,24 +99,26 @@ Class Firebase_Push_Notification
       return($category->cat_name);
     }
 
-    function fcm_on_post_publish($post_id, $post) {
+    function fcm_on_post_publish($post_id, $post, $update = false) {
         //error_log( "Firebase fcm_on_post_save: post_id {$post_id}" );
-        $title = $post->post_title;
-        $content = substr(strip_tags($post->post_content), 0, 50) . "...";
-        if ( ! function_exists('getSlugOfCategory')) {
-          function getSlugOfCategory($category) { return($category->slug); }
-        }
-        $topics = array_map("getSlugOfCategory", get_the_category($post_id));
-        $extra = array(
-            'title'       => array('rendered' => $post->post_title),
-            'content'     => array('rendered' => $post->post_content),
-            'date'        => str_replace(' ','T',$post->post_date),
-            'author'      => $post->post_author,
-            'id'          => $post_id,
-            'categories'  => wp_get_post_categories($post_id)
-        );
-        if(get_option('stf_fcm_api')) {
-            $this->fcm_notification($title, $content, $topics, $extra);
+        if ($post->post_status === 'publish' && $update !== true) {
+          $title = $post->post_title;
+          $content = substr(strip_tags($post->post_content), 0, 50) . "...";
+          if ( ! function_exists('getSlugOfCategory')) {
+            function getSlugOfCategory($category) { return($category->slug); }
+          }
+          $topics = array_map("getSlugOfCategory", get_the_category($post_id));
+          $extra = array(
+              'title'       => array('rendered' => $post->post_title),
+              'content'     => array('rendered' => $post->post_content),
+              'date'        => str_replace(' ','T',$post->post_date),
+              'author'      => $post->post_author,
+              'id'          => $post_id,
+              'categories'  => wp_get_post_categories($post_id)
+          );
+          if(get_option('stf_fcm_api')) {
+              $this->fcm_notification($title, $content, $topics, $extra);
+          }
         }
     }
 
