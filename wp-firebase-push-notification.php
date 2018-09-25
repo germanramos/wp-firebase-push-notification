@@ -33,7 +33,17 @@ Class Firebase_Push_Notification
         add_action("admin_init", array($this, $this->pre_name . '_backend_plugin_css_scripts_filter_table'));
         add_action('admin_init', array($this, $this->pre_name . '_settings'));
         add_action('publish_post', array($this, $this->pre_name . '_on_post_publish'), 10, 2 );
-        add_action('json_insert_post', array($this, $this->pre_name . '_on_post_publish'), 10, 3);
+        add_action('set_object_terms', array($this, $this->pre_name . '_on_set_object_terms'), 10, 6 );
+    }
+
+    function fcm_on_set_object_terms(int $object_id, array $terms, array $tt_ids, string $taxonomy, bool $append, array $old_tt_ids ) {
+        // error_log("id {$object_id}");
+        // error_log("terms {$terms[0]}");
+        // error_log("taxonomy {$taxonomy}");
+        // error_log("append {$append}");
+        if($taxonomy == 'category' && array_key_exists(0, $terms) && $terms[0] != 1 ){
+            $this->fcm_on_post_publish($object_id, get_post($object_id));
+        }
     }
 
     public function fcm_setup_admin_menu()
@@ -99,9 +109,9 @@ Class Firebase_Push_Notification
       return($category->cat_name);
     }
 
-    function fcm_on_post_publish($post_id, $post, $update = false) {
+    function fcm_on_post_publish($post_id, $post) {
         //error_log( "Firebase fcm_on_post_save: post_id {$post_id}" );
-        if ($post->post_status === 'publish' && $update !== true) {
+        if ($post->post_status === 'publish' && $post->post_type === "post" ) {
           $title = $post->post_title;
           $content = substr(strip_tags($post->post_content), 0, 50) . "...";
           if ( ! function_exists('getSlugOfCategory')) {
@@ -116,6 +126,10 @@ Class Firebase_Push_Notification
               'id'          => $post_id,
               'categories'  => wp_get_post_categories($post_id)
           );
+          if ($extra["categories"][0] == 1) {
+            //error_log("Ignoring post without category");
+            return;
+          }
           if(get_option('stf_fcm_api')) {
               $this->fcm_notification($title, $content, $topics, $extra);
           }
@@ -151,6 +165,10 @@ Class Firebase_Push_Notification
     }
 
     function fcm_notification($title, $content, $topics, $extra){
+        // error_log("wp-firebase-plugin-topics");
+        // error_log(print_r($topics, TRUE));
+        // error_log("wp-firebase-plugin-extra");
+        // error_log(print_r($extra, TRUE));
         $condition =  "'".$topics[0]."' in topics";
         if (count($topics) > 1) $condition = $condition . " || '".$topics[1]."' in topics";
         if (count($topics) > 2) $condition = $condition . " || '".$topics[2]."' in topics";
