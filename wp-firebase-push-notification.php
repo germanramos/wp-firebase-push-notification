@@ -37,13 +37,24 @@ Class Firebase_Push_Notification
     }
 
     function fcm_on_set_object_terms(int $object_id, array $terms, array $tt_ids, string $taxonomy, bool $append, array $old_tt_ids ) {
-        // error_log("id {$object_id}");
-        // error_log("terms {$terms[0]}");
+        // error_log("----------------- id {$object_id}");
+        // error_log(print_r($terms, TRUE));
+        // error_log(print_r($old_tt_ids, TRUE));
+        // $equals = ($terms == $old_tt_ids) ? 'true' : 'false';
+        // error_log("arrays iguales {$equals}");
         // error_log("taxonomy {$taxonomy}");
-        // error_log("append {$append}");
-        if($taxonomy == 'category' && array_key_exists(0, $terms) && $terms[0] != 1 ){
-            $this->fcm_on_post_publish($object_id, get_post($object_id));
+        // $converted_append = ($append) ? 'true' : 'false';
+        // error_log("append {$converted_append}");
+        if (array_key_exists(0, $terms) && $terms[0] == 1 ) {
+          return;
         }
+        if ($taxonomy != 'category') {
+          return;
+        }
+        if ($terms == $old_tt_ids) {
+          return;
+        }
+        $this->fcm_on_post_publish($object_id, get_post($object_id));
     }
 
     public function fcm_setup_admin_menu()

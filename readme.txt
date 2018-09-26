@@ -27,7 +27,7 @@ Notify your users of new posts with Firebase cloud messaging (FCM) for Android a
 * After install goto Firebase Push Notification under Settings in Wordpress admin menu
 * Enter Google firebase api key to field given.
 * The firebase topic will be the slug of the first 3 categories of the post
-* If your post does not have category, the topic will be "sin-categoria" if you have WP in Spanish
+* If your post does not have category, no notification will be send
 * The test message will use topic "test"
 
 **Need More features contact us:-**
