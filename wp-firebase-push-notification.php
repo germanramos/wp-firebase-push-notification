@@ -32,7 +32,7 @@ Class Firebase_Push_Notification
         add_action("admin_init", array($this, $this->pre_name . '_backend_plugin_js_scripts_filter_table'));
         add_action("admin_init", array($this, $this->pre_name . '_backend_plugin_css_scripts_filter_table'));
         add_action('admin_init', array($this, $this->pre_name . '_settings'));
-        add_action('publish_post', array($this, $this->pre_name . '_on_post_publish'), 10, 2 );
+        //add_action('publish_post', array($this, $this->pre_name . '_on_post_publish'), 10, 2 );
         add_action('set_object_terms', array($this, $this->pre_name . '_on_set_object_terms'), 10, 6 );
     }
 
@@ -124,14 +124,19 @@ Class Firebase_Push_Notification
         //error_log( "Firebase fcm_on_post_save: post_id {$post_id}" );
         if ($post->post_status === 'publish' && $post->post_type === "post" ) {
           $title = $post->post_title;
-          $content = substr(strip_tags($post->post_content), 0, 50) . "...";
+          //$content = substr(strip_tags($post->post_content), 0, 50) . "...";
           if ( ! function_exists('getSlugOfCategory')) {
             function getSlugOfCategory($category) { return($category->slug); }
           }
-          $topics = array_map("getSlugOfCategory", get_the_category($post_id));
+          if ( ! function_exists('getNameOfCategory')) {
+            function getNameOfCategory($category) { return($category->name); }
+          }
+          $categories = get_the_category($post_id);
+          $topics = array_map("getSlugOfCategory", $categories);
+          $content = implode(", ",array_map("getNameOfCategory", $categories));
           $extra = array(
               'title'       => array('rendered' => $post->post_title),
-              'content'     => array('rendered' => $post->post_content),
+              'content'     => $content,
               'date'        => str_replace(' ','T',$post->post_date),
               'author'      => $post->post_author,
               'id'          => $post_id,

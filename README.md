@@ -19,6 +19,11 @@ Wordpress 3.6+
 
 4. Now goto Firebase Push Notification under Settings in admin menu
 
+## Create zip of the plugin
+```
+cd ..
+zip -r wp-firebase-push-notification.zip wp-firebase-push-notification
+```
 
 ## How to use Plugin
 
