@@ -22,7 +22,7 @@ Wordpress 3.6+
 ## Create zip of the plugin
 ```
 cd ..
-zip -r wp-firebase-push-notification.zip wp-firebase-push-notification
+zip -r wp-firebase-push-notification.zip wp-firebase-push-notification -x *.git*
 ```
 
 ## How to use Plugin

@@ -196,17 +196,14 @@ Class Firebase_Push_Notification
             'Content-Type: application/json'
         );
         $notification_data = array(    //// when application open then post field 'data' parameter work so 'message' and 'body' key should have same text or value
-            //'message'        => $content,
             'extra'          => $extra,
-            //'category'       => $category
         );
 
         $notification = array(       //// when application close then post field 'notification' parameter work
-            'title'      => $title,
-            'body'       => $content,
-            //'extra'      => $extra,
-            //'category'   => $category,
-            'sound'      => 'default'
+            'title'        => $title,
+            'body'         => $content,
+            'sound'        => 'default',
+            'click_action' => 'FCM_PLUGIN_ACTIVITY'
         );
 
         $post = array(
