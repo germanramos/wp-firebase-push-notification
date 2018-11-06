@@ -124,7 +124,6 @@ Class Firebase_Push_Notification
         //error_log( "Firebase fcm_on_post_save: post_id {$post_id}" );
         if ($post->post_status === 'publish' && $post->post_type === "post" ) {
           $title = $post->post_title;
-          //$content = substr(strip_tags($post->post_content), 0, 50) . "...";
           if ( ! function_exists('getSlugOfCategory')) {
             function getSlugOfCategory($category) { return($category->slug); }
           }
@@ -133,21 +132,22 @@ Class Firebase_Push_Notification
           }
           $categories = get_the_category($post_id);
           $topics = array_map("getSlugOfCategory", $categories);
-          $content = implode(", ",array_map("getNameOfCategory", $categories));
+          $categoryName = implode(", ",array_map("getNameOfCategory", $categories));
           $extra = array(
-              'title'       => array('rendered' => $post->post_title),
-              'content'     => $content,
-              'date'        => str_replace(' ','T',$post->post_date),
-              'author'      => $post->post_author,
-              'id'          => $post_id,
-              'categories'  => wp_get_post_categories($post_id)
+              'title'        => array('rendered' => $post->post_title),
+              'content'      => array('rendered' => $post->post_content),
+              'date'         => str_replace(' ','T',$post->post_date),
+              'author'       => $post->post_author,
+              'id'           => $post_id,
+              'categories'   => wp_get_post_categories($post_id),
+              'categoryName' => $categoryName
           );
           if ($extra["categories"][0] == 1) {
             //error_log("Ignoring post without category");
             return;
           }
           if(get_option('stf_fcm_api')) {
-              $this->fcm_notification($title, $content, $topics, $extra);
+              $this->fcm_notification($title, $categoryName, $topics, $extra);
           }
         }
     }
